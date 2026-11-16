@@ -54,3 +54,7 @@ spotter-cli D:\Github report --no-skip      include ignored folders
 cargo build --release      # target\release\spotter.exe (GUI) and spotter-cli.exe
 cargo test --lib
 ```
+
+## License
+
+MIT. See [LICENSE](LICENSE).

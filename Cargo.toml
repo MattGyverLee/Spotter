@@ -3,6 +3,8 @@ name = "spotter"
 version = "0.1.0"
 edition = "2024"
 description = "Fast file search for Windows that skips dependency and build folders"
+license = "MIT"
+repository = "https://github.com/MattGyverLee/Spotter"
 
 [dependencies]
 chrono = { version = "0.4.45", default-features = false, features = ["clock", "std"] }
