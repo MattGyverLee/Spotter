@@ -1,6 +1,8 @@
 #![windows_subsystem = "windows"]
 //! Spotter GUI: search files by name, text, size and date, skipping dependency, build and system folders.
 
+mod icons;
+
 use eframe::egui::{self, Align, Color32, Key, Layout, RichText, Sense, Vec2};
 use egui_extras::{Column, TableBuilder};
 use spotter::drives;
@@ -125,6 +127,7 @@ struct App {
     drives: Vec<(String, String)>,
     /// Search on the first frame (a name was given on the command line).
     start_now: bool,
+    icons: icons::Icons,
 }
 
 impl App {
@@ -165,6 +168,7 @@ impl App {
             title: String::new(),
             drives: drive_choices(&list),
             start_now: args.len() >= 2,
+            icons: icons::Icons::new(),
         }
     }
 
@@ -406,6 +410,7 @@ impl App {
             }
         };
         let text_h = egui::TextStyle::Body.resolve(ui.style()).size + 6.0;
+        let ctx = ui.ctx().clone();
         TableBuilder::new(ui)
             .striped(true)
             .resizable(true)
@@ -428,7 +433,10 @@ impl App {
                     let h = &self.results[i];
                     row.set_selected(selected == Some(i));
                     row.col(|ui| {
-                        file_icon(ui, h.is_dir);
+                        match self.icons.get(&ctx, &h.path, h.is_dir) {
+                            Some(tex) => drop(ui.add(egui::Image::new(tex).fit_to_exact_size(Vec2::splat(16.0)))),
+                            None => file_icon(ui, h.is_dir),
+                        }
                         ui.add(egui::Label::new(h.name()).truncate());
                     });
                     row.col(|ui| drop(ui.add(egui::Label::new(h.location()).truncate())));
@@ -693,7 +701,7 @@ enum Action {
     CopyAll,
 }
 
-/// A small painted folder or page icon.
+/// A small painted folder or page icon, for when the shell has no icon for a type.
 fn file_icon(ui: &mut egui::Ui, is_dir: bool) {
     let (rect, _) = ui.allocate_exact_size(Vec2::new(16.0, 14.0), Sense::hover());
     let p = ui.painter();
